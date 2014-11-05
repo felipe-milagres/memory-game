@@ -10,34 +10,41 @@ public class Carta : MonoBehaviour {
 
 	// Use this for initialization
 	private void Start () {
-		estado = Estado.NAO_VIRADA;
+		//estado = Estado.NAO_VIRADA;
+		estado = Estado.VIRADA;
 		nome = gameObject.transform.name;
 
-		//Debug.Log(">> " + nome + ":" + estado);
+		Invoke("CardInit", 3);
+	}
+
+	private void CardInit(){
+		if( estado == Estado.VIRADA ){
+			estado = Estado.GIRANDO;
+			StartCoroutine( RotacionarCarta(1 , Estado.NAO_VIRADA ) ); // tempo animacao , novo estado apos a animacao
+			//Debug.Log(estado);
+		}
 	}
 
 	public void GirarCarta(){
 		if( estado == Estado.NAO_VIRADA ){
-			//estado = Estado.VIRADA;
 			estado = Estado.GIRANDO;
 			StartCoroutine( RotacionarCarta(1 , Estado.VIRADA ) ); // tempo animacao , novo estado apos a animacao
-			Debug.Log(estado);
+			//Debug.Log(estado);
 		}
 	}
 
 	public void GirarCartaDeVolta(){
 		if( estado == Estado.VIRADA ){
-			//estado = Estado.NAO_VIRADA;
 			estado = Estado.GIRANDO;
 			StartCoroutine( RotacionarCarta(1 , Estado.NAO_VIRADA ) ); // tempo animacao , novo estado apos a animacao
-			Debug.Log(estado);
+			//Debug.Log(estado);
 		}
 	}
 
 	public void CartaCombinaComOutra(){
 		if( estado == Estado.VIRADA ){
 			estado = Estado.COMBINADA;
-			Debug.Log(estado);
+			//Debug.Log(estado);
 		}
 	}
 
@@ -53,7 +60,7 @@ public class Carta : MonoBehaviour {
 				transform.rotation = Quaternion.Lerp(anguloInicial, anguloFinal, t);
 				yield return null;			
 			}
-			// avoid 181 or 180.99 degrees
+			// avoid 181 or 180.99 degrees 
 			transform.rotation = anguloFinal;
 			estado = novoEstado;
 		}
