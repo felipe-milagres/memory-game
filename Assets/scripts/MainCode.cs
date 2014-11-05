@@ -10,6 +10,7 @@ public class MainCode : MonoBehaviour {
 	private int score;
 	private bool gameOver;
 	public AudioClip cardsMatchSound;
+	public AudioClip cardsDontMatchSound;
 
 	private void Awake(){
 		ShufflingCards();
@@ -62,8 +63,17 @@ public class MainCode : MonoBehaviour {
 
 		GameObject[] allCards = GameObject.FindGameObjectsWithTag("card");
 
+		// debug
+		GameObject[] delete = GameObject.FindGameObjectsWithTag("debug");
+
+		int i = 0;
+
 		foreach (GameObject c in allCards) {
-			c.transform.position = cardsPosition[(int) positions.Dequeue()];
+			//c.transform.position = cardsPosition[(int) positions.Dequeue()];
+
+			//debug
+			c.transform.position = delete[i].transform.position;
+			i++;
 		}
 
 	}
@@ -153,6 +163,8 @@ public class MainCode : MonoBehaviour {
 			// voltar as cartas para NAO_VIRADA
 			carta1.transform.SendMessage("GirarCartaDeVolta");
 			carta2.transform.SendMessage("GirarCartaDeVolta");
+
+			audio.PlayOneShot(cardsDontMatchSound, 1);
 
 			score -= 5;
 			if ( score <= 0 ) score = 0;
