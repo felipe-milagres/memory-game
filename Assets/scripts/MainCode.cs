@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml;
+using System.IO;
 
 public class MainCode : MonoBehaviour {
 
@@ -112,6 +114,10 @@ public class MainCode : MonoBehaviour {
 
 		GUI.skin = customSkin;
 
+		if (GUI.Button(new Rect(130, 150, 50, 30), "Save")){
+			SaveData( );
+		}
+
 		int minutes = Mathf.FloorToInt(_timer / 60F);
 		int seconds = Mathf.FloorToInt(_timer - minutes * 60);
 		
@@ -178,7 +184,6 @@ public class MainCode : MonoBehaviour {
 		}
 	}
 
-
 	private IEnumerator AsCartasSaoIguais( GameObject carta1 , GameObject carta2 ){
 
 		yield return new WaitForSeconds(1.2f);
@@ -213,6 +218,59 @@ public class MainCode : MonoBehaviour {
 
 	private void GameOver(){
 		_gameOver = true;
+	}
+
+	private bool NewBestTime(){
+
+		// se meu tempo de agora e' melhor/menor que o meu best-time gravado
+		// eu retorno true
+		// senao false
+		// trasnformar em numeros 
+		// depois tudo em segundos .. e comparar se meu tempo agora e' menor com o tempo que eu salvei
+
+	}
+
+	void SaveData(){
+		
+		string xmlPath = Application.dataPath + @"/xml/data.xml";
+		XmlDocument xmlDoc = new XmlDocument();
+		
+		if( File.Exists( xmlPath ) ){
+			
+			// loadnig XML file
+			xmlDoc.Load( xmlPath );
+
+			// getting XML root
+			XmlElement nodeRoot = xmlDoc.DocumentElement;	
+
+			xmlDoc.DocumentElement.RemoveAll();
+			
+			XmlElement nodePlayer = xmlDoc.CreateElement("player"); // creating node "player"
+			
+			XmlElement nodeTime = xmlDoc.CreateElement("time"); // creating node "name"
+			nodeTime.InnerText = _niceTime+""; // putting the name in the node
+
+			string bestTimeXML = xmlDoc.ChildNodes[0].ChildNodes[0].ChildNodes[0].InnerText;
+			Debug.Log( bestTimeXML );
+
+			if( NewBestTime( bestTimeXML ) ){
+				bestTimeXML = _niceTime+"";
+			}
+
+			XmlElement nodeBestTime = xmlDoc.CreateElement("time"); // creating node "name"
+			nodeBestTime.InnerText = bestTimeXML+""; // putting the name in the node
+
+			// adding name node inside player node
+			nodePlayer.AppendChild( nodeTime );
+			
+			// adding player node inside root node
+			nodeRoot.AppendChild( nodePlayer );
+			
+			// salving xml file
+			xmlDoc.Save( xmlPath );
+			
+			Debug.Log("saved!!");
+		}
 	}
 
 }
