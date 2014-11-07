@@ -4,26 +4,30 @@ using System.Collections.Generic;
 
 public class MainCode : MonoBehaviour {
 
-	private Queue cartasClicadasFila = new Queue();
-	private int cartasCombinadas;
-	private float timer;
-	private int score;
-	private bool gameOver;
+	private Queue _cardsClickedQueue = new Queue();
+	private int _cardsMatched;
+	private float _timer;
+	private int _score;
+	private bool _gameOver;
+	private string _niceTime;
+
 	public AudioClip cardsMatchSound;
 	public AudioClip cardsDontMatchSound;
+	public GUISkin customSkin;
 
 	private void Awake(){
 		ShufflingCards();
 	}
 
 	private void Start () {
-		cartasCombinadas = 0;
-		timer = 0;
-		score = 0;
-		gameOver = false;
+		_cardsMatched = 0;
+		_timer = 0;
+		_score = 0;
+		_gameOver = false;
+		_niceTime = "00:00";
 	}
 
-	Queue UniqueRandomNumbersQueue(){
+	private Queue UniqueRandomNumbersQueue(){
 
 		// queue of my unique random numbers
 		Queue numbers = new Queue();
@@ -53,29 +57,44 @@ public class MainCode : MonoBehaviour {
 	private void ShufflingCards(){
 
 		Vector2[] cardsPosition = {
-			new Vector2 { x = -12, y = 14 }, new Vector2 { x = -6, y = 14 }, new Vector2 { x = 0, y = 14 }, new Vector2 { x = 6, y = 14 }, new Vector2 { x = 12, y = 14 },
-			new Vector2 { x = -12, y =  7 }, new Vector2 { x = -6, y =  7 }, new Vector2 { x = 0, y =  7 }, new Vector2 { x = 6, y =  7 }, new Vector2 { x = 12, y =  7 }, 
-			new Vector2 { x = -12, y =  0 }, new Vector2 { x = -6, y =  0 }, new Vector2 { x = 0, y =  0 }, new Vector2 { x = 6, y =  0 }, new Vector2 { x = 12, y =  0 }, 
-			new Vector2 { x = -12, y = -7 }, new Vector2 { x = -6, y = -7 }, new Vector2 { x = 0, y = -7 }, new Vector2 { x = 6, y = -7 }, new Vector2 { x = 12, y = -7 }  
+			new Vector2 { x = -7, y =  0 },  // 1
+			new Vector2 { x =  3, y = -7 },  // 2
+			new Vector2 { x =  3, y = 14 },  // 3
+			new Vector2 { x =  3, y =  0 },  // 4
+			new Vector2 { x =  3, y =  7 },  // 5
+			new Vector2 { x =  8, y =  0 },  // 6
+			new Vector2 { x =  8, y = -7 },  // 7
+			new Vector2 { x = -7, y = 14 },  // 8
+			new Vector2 { x = -2, y = -7 },  // 9
+			new Vector2 { x = -2, y =  7 },  // 10
+			new Vector2 { x = -7, y =  7 },  // 11
+			new Vector2 { x = -2, y = 14 },  // 12
+			new Vector2 { x =  8, y = 14 },  // 13
+			new Vector2 { x =  8, y =  7 },  // 14
+			new Vector2 { x = -2, y =  0 },  // 15
+			new Vector2 { x = -7, y = -7 },  // 16
+			new Vector2 { x = -7, y = -14 },  // 17
+			new Vector2 { x = -2, y = -14 },  // 18
+			new Vector2 { x =  3, y = -14 },  // 19
+			new Vector2 { x =  8, y = -14 }   // 20
 		};
 
 		Queue positions = UniqueRandomNumbersQueue();
-
 		GameObject[] allCards = GameObject.FindGameObjectsWithTag("card");
 
-		// debug
-		GameObject[] delete = GameObject.FindGameObjectsWithTag("debug");
-
-		int i = 0;
-
 		foreach (GameObject c in allCards) {
-			//c.transform.position = cardsPosition[(int) positions.Dequeue()];
+			c.transform.position = cardsPosition[(int) positions.Dequeue()];
+		}
 
-			//debug
+		/**
+		 * DEBUG
+		GameObject[] delete = GameObject.FindGameObjectsWithTag("debug");
+		int i = 0;
+		foreach (GameObject c in allCards) {
 			c.transform.position = delete[i].transform.position;
 			i++;
 		}
-
+		*/
 	}
 
 	private void Update() {
@@ -84,25 +103,45 @@ public class MainCode : MonoBehaviour {
 			CastRay();
 		}
 
-		if( !gameOver )
-			timer += Time.deltaTime;
+		if( !_gameOver )
+			_timer += Time.deltaTime;
 
 	}
 
 	void OnGUI() {
-		int minutes = Mathf.FloorToInt(timer / 60F);
-		int seconds = Mathf.FloorToInt(timer - minutes * 60);
-		
-		string niceTime = string.Format("{0:0}:{1:00}", minutes, seconds);
-		
-		GUI.Label(new Rect(10,5,250,100), niceTime);
 
-		GUI.Label(new Rect(10,20,250,100), "score: " + score);
+		GUI.skin = customSkin;
 
-		if (GUI.Button(new Rect(10, 70, 80, 30), "Restart"))
-			Application.LoadLevel("cartas");
+		int minutes = Mathf.FloorToInt(_timer / 60F);
+		int seconds = Mathf.FloorToInt(_timer - minutes * 60);
+		
+		_niceTime = string.Format("{0:00}:{1:00}", minutes, seconds);
+
+		GUI.Label(new Rect(Screen.width/2 - 41,0,100,30), _niceTime);
+
+		if( _gameOver ){
+			GUI.Box (new Rect (0,0,Screen.width,Screen.height), "");
+			GUI.ModalWindow (0, new Rect (Screen.width/2 - 115, Screen.height/2 - 75,230 , 150), DoMyModalWindow, "Game Over");
+		}
 	}
-	
+
+	void DoMyModalWindow(int windowID) {
+
+		GUI.BeginGroup (new Rect (10,33, 100, 70));
+		GUI.Box (new Rect (0,0,100,70), "Your Time:");
+		GUI.Label(new Rect(10,40,250,100), _niceTime);
+		GUI.EndGroup ();
+		
+		GUI.BeginGroup (new Rect (120, 33, 100, 70));
+		GUI.Box (new Rect (0,0,100,70), "Best Time:");
+		GUI.Label(new Rect(10,40,250,100), "00:00");
+		GUI.EndGroup ();
+		
+		if (GUI.Button(new Rect(55, 110, 120, 30), "Play again"))
+			Application.LoadLevel("cartas");
+		
+	}
+
 	private void CastRay() {
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 		RaycastHit hit;
@@ -110,7 +149,7 @@ public class MainCode : MonoBehaviour {
 		if( Physics.Raycast( ray, out hit, 100 ) ){
 
 			// verifico se existe menos que duas cartas na minha fila 
-			if( cartasClicadasFila.Count < 2 ){
+			if( _cardsClickedQueue.Count < 2 ){
 
 				// se cliquei em uma carta e seu estado e' NAO_VIRADA
 				if( hit.transform.gameObject.tag == "card" && hit.transform.GetComponent<Carta>().estado == Carta.Estado.NAO_VIRADA ){
@@ -119,18 +158,18 @@ public class MainCode : MonoBehaviour {
 					hit.transform.SendMessage("GirarCarta");
 
 					// adicionando em uma fila temporaria
-					cartasClicadasFila.Enqueue( hit.transform.gameObject );
+					_cardsClickedQueue.Enqueue( hit.transform.gameObject );
 
 				}
 
 			}
 
 			// quando tiver duas cartas na minha fila, eu verifico se elas combinam ou nao
-			if( cartasClicadasFila.Count == 2 ){
+			if( _cardsClickedQueue.Count == 2 ){
 
 				// removo da minha fila as duas cartas
-				GameObject temp1 = (GameObject) cartasClicadasFila.Dequeue();
-				GameObject temp2 = (GameObject) cartasClicadasFila.Dequeue();
+				GameObject temp1 = (GameObject) _cardsClickedQueue.Dequeue();
+				GameObject temp2 = (GameObject) _cardsClickedQueue.Dequeue();
 
 				StartCoroutine( AsCartasSaoIguais( temp1 , temp2 ) );
 
@@ -150,11 +189,11 @@ public class MainCode : MonoBehaviour {
 
 			audio.PlayOneShot(cardsMatchSound, 1);
 
-			cartasCombinadas++;
+			_cardsMatched++;
 
-			score += 10;
+			_score += 10;
 
-			if( cartasCombinadas == 10 ) {
+			if( _cardsMatched == 10 ) {
 				Debug.Log("FIM DE JOGO! ");
 				GameOver();
 			}
@@ -166,15 +205,14 @@ public class MainCode : MonoBehaviour {
 
 			audio.PlayOneShot(cardsDontMatchSound, 1);
 
-			score -= 5;
-			if ( score <= 0 ) score = 0;
+			_score -= 5;
+			if ( _score <= 0 ) _score = 0;
 		}
 
 	}
 
 	private void GameOver(){
-		gameOver = true;
-
+		_gameOver = true;
 	}
 
 }
