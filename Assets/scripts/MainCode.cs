@@ -6,19 +6,25 @@ using System.IO;
 
 public class MainCode : MonoBehaviour {
 
-	private Queue _cardsClickedQueue = new Queue();// queue of cards who was clicked by the player
-	private int _cardsMatched; // number of cards who got matched (max 10)
+	// queue of cards who was clicked by the player
+	private Queue _cardsClickedQueue = new Queue();
+	// number of cards who got matched (max 10)
+	private int _cardsMatched; 
 	private float _timer; 
 	private bool _gameOver;
-	private string _niceTime; // timer with mask MM:SS
-	private string _niceBestTime; // my best time with mask MM:SS
+	// timer with mask MM:SS
+	private string _niceTime; 
+	// my best time with mask MM:SS
+	private string _niceBestTime; 
 
-	public AudioClip cardsMatchSound; // audio to play when my cards match
-	public AudioClip cardsDontMatchSound; // audio to play when my cards don't match
+	// audio to play when my cards match
+	public AudioClip cardsMatchSound; 
+	// audio to play when my cards don't match
+	public AudioClip cardsDontMatchSound; 
 	public GUISkin customSkin;
 
 	private void Awake() {
-		// everytime when my game start, my cards positions will be random
+		// everytime when my game start my cards positions will be random
 		ShufflingCards();
 	}
 
@@ -264,9 +270,9 @@ public class MainCode : MonoBehaviour {
 
 		// if my new time is better than the time in my database
 		if( NewBestTime( _niceTime , database.getElementXML( "best_time" ) ) ){
-			_niceBestTime = _niceTime;
-			database.changeValueOf ("best_time", _niceTime);
+			database.changeValueOf( "best_time", _niceTime );
 		}
+		_niceBestTime = database.getElementXML( "best_time" );
 	
 	}
 
